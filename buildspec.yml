@@ -1,0 +1,65 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - IMAGE_TAG=${COMMIT_HASH:=latest}
+  
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo Building Docker images for all services...
+      
+      # Build cats service
+      - echo Building cats service...
+      - CATS_REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CATS_REPO_NAME
+      - cd infra/src/cats
+      - docker build -t $CATS_REPOSITORY_URI:latest .
+      - docker tag $CATS_REPOSITORY_URI:latest $CATS_REPOSITORY_URI:$IMAGE_TAG
+      - cd ../../..
+      
+      # Build dogs service
+      - echo Building dogs service...
+      - DOGS_REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$DOGS_REPO_NAME
+      - cd infra/src/dogs
+      - docker build -t $DOGS_REPOSITORY_URI:latest .
+      - docker tag $DOGS_REPOSITORY_URI:latest $DOGS_REPOSITORY_URI:$IMAGE_TAG
+      - cd ../../..
+      
+      # Build web service
+      - echo Building web service...
+      - WEB_REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$WEB_REPO_NAME
+      - cd infra/src/web
+      - docker build -t $WEB_REPOSITORY_URI:latest .
+      - docker tag $WEB_REPOSITORY_URI:latest $WEB_REPOSITORY_URI:$IMAGE_TAG
+      - cd ../../..
+
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Pushing Docker images...
+      
+      # Push cats service
+      - docker push $CATS_REPOSITORY_URI:latest
+      - docker push $CATS_REPOSITORY_URI:$IMAGE_TAG
+      
+      # Push dogs service
+      - docker push $DOGS_REPOSITORY_URI:latest
+      - docker push $DOGS_REPOSITORY_URI:$IMAGE_TAG
+      
+      # Push web service
+      - docker push $WEB_REPOSITORY_URI:latest
+      - docker push $WEB_REPOSITORY_URI:$IMAGE_TAG
+      
+      - echo Writing task definition files...
+      - envsubst < infra/src/taskdef_template.json > taskdef.json
+      - envsubst < infra/src/appspec_template.yaml > appspec.yaml
+
+artifacts:
+  files:
+    - appspec.yaml
+    - taskdef.json
+  discard-paths: yes
