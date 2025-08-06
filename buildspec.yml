@@ -16,26 +16,26 @@ phases:
       # Build cats service
       - echo Building cats service...
       - CATS_REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CATS_REPO_NAME
-      - cd infra/src/cats
+      - cd src/cats
       - docker build -t $CATS_REPOSITORY_URI:latest .
       - docker tag $CATS_REPOSITORY_URI:latest $CATS_REPOSITORY_URI:$IMAGE_TAG
-      - cd ../../..
+      - cd ../..
       
       # Build dogs service
       - echo Building dogs service...
       - DOGS_REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$DOGS_REPO_NAME
-      - cd infra/src/dogs
+      - cd src/dogs
       - docker build -t $DOGS_REPOSITORY_URI:latest .
       - docker tag $DOGS_REPOSITORY_URI:latest $DOGS_REPOSITORY_URI:$IMAGE_TAG
-      - cd ../../..
+      - cd ../..
       
       # Build web service
       - echo Building web service...
       - WEB_REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$WEB_REPO_NAME
-      - cd infra/src/web
+      - cd src/web
       - docker build -t $WEB_REPOSITORY_URI:latest .
       - docker tag $WEB_REPOSITORY_URI:latest $WEB_REPOSITORY_URI:$IMAGE_TAG
-      - cd ../../..
+      - cd ../..
 
   post_build:
     commands:
