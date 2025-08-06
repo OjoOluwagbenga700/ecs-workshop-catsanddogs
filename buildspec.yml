@@ -54,12 +54,4 @@ phases:
       - docker push $WEB_REPOSITORY_URI:latest
       - docker push $WEB_REPOSITORY_URI:$IMAGE_TAG
       
-      - echo Writing task definition files...
-      - envsubst < infra/src/taskdef_template.json > taskdef.json
-      - envsubst < infra/src/appspec_template.yaml > appspec.yaml
-
-artifacts:
-  files:
-    - appspec.yaml
-    - taskdef.json
-  discard-paths: yes
+      - echo Build completed successfully
