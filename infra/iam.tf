@@ -71,7 +71,13 @@ resource "aws_iam_policy" "codebuild_policy" {
       },
       {
         Action = [
-          "ecr:GetAuthorizationToken",
+          "ecr:GetAuthorizationToken"
+        ]
+        Effect   = "Allow"
+        Resource = "*"
+      },
+      {
+        Action = [
           "ecr:BatchCheckLayerAvailability",
           "ecr:GetDownloadUrlForLayer",
           "ecr:BatchGetImage",
@@ -81,7 +87,11 @@ resource "aws_iam_policy" "codebuild_policy" {
           "ecr:PutImage"
         ]
         Effect   = "Allow"
-        Resource = "*"
+        Resource = [
+          "arn:aws:ecr:${var.aws_region}:${data.aws_caller_identity.current.account_id}:repository/${var.cats_repo_name}",
+          "arn:aws:ecr:${var.aws_region}:${data.aws_caller_identity.current.account_id}:repository/${var.dogs_repo_name}",
+          "arn:aws:ecr:${var.aws_region}:${data.aws_caller_identity.current.account_id}:repository/${var.web_repo_name}"
+        ]
       },
       {
         Action   = ["ecs:DescribeTaskDefinition", "ecs:RegisterTaskDefinition"]
