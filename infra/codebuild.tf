@@ -64,6 +64,11 @@ resource "aws_codebuild_project" "ecs_build" {
       name  = "TASK_FAMILY"
       value = var.family
     }
+
+    environment_variable {
+      name  = "SERVICE_NAME"
+      value = "web"
+    }
   }
 
   source {

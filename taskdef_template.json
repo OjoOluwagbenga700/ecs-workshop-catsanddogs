@@ -1,0 +1,21 @@
+[
+  {
+    "name": "${CONTAINER_NAME}",
+    "image": "${IMAGE_URI}",
+    "portMappings": [
+      {
+        "containerPort": 80,
+        "protocol": "tcp"
+      }
+    ],
+    "essential": true,
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "${LOG_GROUP_NAME}",
+        "awslogs-region": "${AWS_REGION}",
+        "awslogs-stream-prefix": "${CONTAINER_NAME}-service"
+      }
+    }
+  }
+]
