@@ -54,21 +54,4 @@ phases:
       - docker push $WEB_REPOSITORY_URI:latest
       - docker push $WEB_REPOSITORY_URI:$IMAGE_TAG
       
-      - echo Writing task definition files...
-      - export CONTAINER_NAME=${SERVICE_NAME:-web}
-      - |
-        case $CONTAINER_NAME in
-          cats) export IMAGE_URI=$CATS_REPOSITORY_URI:latest ;;
-          dogs) export IMAGE_URI=$DOGS_REPOSITORY_URI:latest ;;
-          *) export IMAGE_URI=$WEB_REPOSITORY_URI:latest ;;
-        esac
-      - export LOG_GROUP_NAME=/ecs/$CONTAINER_NAME
-      - export AWS_REGION=$AWS_DEFAULT_REGION
-      - envsubst < taskdef_template.json > taskdef.json
-      - envsubst < appspec_template.yaml > appspec.yaml
-
-artifacts:
-  files:
-    - appspec.yaml
-    - taskdef.json
-  discard-paths: yes
+      - echo Build and push completed successfully

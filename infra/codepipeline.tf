@@ -55,26 +55,6 @@ resource "aws_codepipeline" "ecs_pipelines" {
     }
   }
 
-  stage {
-    name = "Deploy"
 
-    action {
-      name            = "Deploy"
-      category        = "Deploy"
-      owner           = "AWS"
-      provider        = "CodeDeployToECS"
-      version         = "1"
-      input_artifacts = ["build_output"]
-
-      configuration = {
-        ApplicationName                = aws_codedeploy_app.ecs_apps[each.key].name
-        DeploymentGroupName            = aws_codedeploy_deployment_group.ecs_deployment_groups[each.key].deployment_group_name
-        TaskDefinitionTemplateArtifact = "build_output"
-        TaskDefinitionTemplatePath     = "taskdef.json"
-        AppSpecTemplateArtifact        = "build_output"
-        AppSpecTemplatePath            = "appspec.yaml"
-      }
-    }
-  }
 }
 
