@@ -1,7 +1,7 @@
 # Create an Application Load Balancer (ALB) for the e-commerce application
 # This ALB is internet-facing (external) and deployed across 2 public subnets
 resource "aws_lb" "alb" {
-  name                       = "e-commerce-alb"
+  name                       = "ecs-alb"
   internal                   = false
   load_balancer_type         = "application"
   security_groups            = [aws_security_group.alb_sg.id]
@@ -10,17 +10,13 @@ resource "aws_lb" "alb" {
   depends_on                 = [module.networking, aws_security_group.alb_sg]
 
   tags = {
-    Name = "e-commerce-alb"
+    Name = "ecs-alb"
   }
 }
 
 # Create target groups for each service (cats, dogs, web)
 resource "aws_lb_target_group" "alb_tg" {
-  for_each = {
-    cats = "cats"
-    dogs = "dogs"
-    web  = "web"
-  }
+  for_each = local.services
 
   name        = "e-commerce-tg-${each.key}"
   target_type = "ip"
@@ -30,12 +26,34 @@ resource "aws_lb_target_group" "alb_tg" {
 
   health_check {
     enabled             = true
-    interval            = 300
-    path                = "/"
-    timeout             = 60
-    matcher             = 200
-    healthy_threshold   = 5
-    unhealthy_threshold = 5
+    interval            = local.health_check.interval
+    path                = local.health_check.path
+    timeout             = local.health_check.timeout
+    matcher             = local.health_check.matcher
+    healthy_threshold   = local.health_check.healthy_threshold
+    unhealthy_threshold = local.health_check.unhealthy_threshold
+  }
+  depends_on = [aws_lb.alb]
+}
+
+# Create blue target groups for blue/green deployment
+resource "aws_lb_target_group" "alb_tg_blue" {
+  for_each = local.services
+  
+  name        = "e-commerce-tg-blue-${each.key}"
+  target_type = "ip"
+  port        = 80
+  protocol    = "HTTP"
+  vpc_id      = module.networking.vpc_id
+
+  health_check {
+    enabled             = true
+    interval            = local.health_check.interval
+    path                = local.health_check.path
+    timeout             = local.health_check.timeout
+    matcher             = local.health_check.matcher
+    healthy_threshold   = local.health_check.healthy_threshold
+    unhealthy_threshold = local.health_check.unhealthy_threshold
   }
   depends_on = [aws_lb.alb]
 }

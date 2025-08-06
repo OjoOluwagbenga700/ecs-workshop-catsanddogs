@@ -12,7 +12,7 @@ vpc_name                 = "ecs-vpc"
 azs                      = ["us-east-1a", "us-east-1b"]
 public_subnets           = ["10.0.1.0/24", "10.0.2.0/24"]
 private_subnets          = ["10.0.3.0/24", "10.0.4.0/24"]
-github_repo              = "your-github-username/ecs-cats-and-dogs"
+github_repo              = "OjoOluwagbenga700/ecs-workshop-catsanddogs"
 github_branch            = "main"
-codepipeline_bucket_name = "ecs--cicd-artifacts"
+codepipeline_bucket_name = "ecs007-cicd-artifacts"
 

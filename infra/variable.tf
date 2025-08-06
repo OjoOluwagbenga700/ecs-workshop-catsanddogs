@@ -18,9 +18,6 @@ variable "web_repo_name" {
 
 }
 
-
-
-# Name of the ECS cluster
 variable "ecs_cluster_name" {
   type        = string
   description = "ECS cluster name"

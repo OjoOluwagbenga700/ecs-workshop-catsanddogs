@@ -12,23 +12,14 @@ resource "aws_ecs_cluster" "cluster" {
 
 # Create CloudWatch Log Groups
 resource "aws_cloudwatch_log_group" "ecs_logs" {
-  for_each = {
-    cats = "cats"
-    dogs = "dogs"
-    web  = "web"
-  }
-
+  for_each = local.services
   name              = "/ecs/${each.key}"
   retention_in_days = 7
 }
 
 # ECS task definitions for Fargate launch type
 resource "aws_ecs_task_definition" "task_definitions" {
-  for_each = {
-    cats = "cats"
-    dogs = "dogs"
-    web  = "web"
-  }
+  for_each = local.services
 
   family                   = "${each.key}-${var.family}"
   cpu                      = var.task_cpu
@@ -43,11 +34,11 @@ resource "aws_ecs_task_definition" "task_definitions" {
     operating_system_family = "LINUX"
   }
 
-  depends_on = [aws_iam_role.ecs_task_execution_role, docker_registry_image.images, aws_cloudwatch_log_group.ecs_logs]
+  depends_on = [aws_iam_role.ecs_task_execution_role, aws_cloudwatch_log_group.ecs_logs]
 
   container_definitions = templatefile("${path.module}/${each.key}_taskdef.tpl", {
     container_name = each.key
-    image          = docker_image.images[each.key].name
+    image          = "${aws_ecr_repository.repos[each.key].repository_url}:latest"
     log_group_name = aws_cloudwatch_log_group.ecs_logs[each.key].name
     aws_region     = var.aws_region
   })
@@ -55,11 +46,7 @@ resource "aws_ecs_task_definition" "task_definitions" {
 
 # ECS services running on Fargate
 resource "aws_ecs_service" "ecs_services" {
-  for_each = {
-    cats = "cats"
-    dogs = "dogs"
-    web  = "web"
-  }
+  for_each = local.services
 
   name                   = "${each.key}-${var.service_name}"
   cluster                = aws_ecs_cluster.cluster.id
@@ -75,7 +62,7 @@ resource "aws_ecs_service" "ecs_services" {
   network_configuration {
     subnets          = module.networking.private_subnets
     security_groups  = [aws_security_group.ecs_task_sg.id]
-    assign_public_ip = true
+    assign_public_ip = false
   }
 
   load_balancer {

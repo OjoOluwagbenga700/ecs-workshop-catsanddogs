@@ -24,24 +24,3 @@ resource "aws_ecr_repository" "repos" {
   image_tag_mutability = "MUTABLE"
   force_delete         = true
 }
-
-
-# Build Docker images from local Dockerfiles
-resource "docker_image" "images" {
-  for_each = aws_ecr_repository.repos
-
-  name = "${each.value.repository_url}:latest"
-  build {
-    context    = "${path.module}/src/${each.key}"
-    dockerfile = "Dockerfile"
-  }
-}
-
-# Push built Docker images to ECR repositories
-resource "docker_registry_image" "images" {
-  for_each = docker_image.images
-
-  name       = each.value.name
-  depends_on = [aws_ecr_repository.repos]
-}
-

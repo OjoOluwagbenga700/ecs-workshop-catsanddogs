@@ -16,8 +16,8 @@ module "networking" {
 
 # Security group for ECS tasks
 resource "aws_security_group" "ecs_task_sg" {
-  name        = "e-commerce-ecs-task-sg"
-  description = "Security group .for ECS tasks through ALB"
+  name        = "ecs-task-sg"
+  description = "Security group for ECS tasks through ALB"
   vpc_id      = module.networking.vpc_id
 
   # Allow inbound HTTP traffic from ALB
@@ -28,14 +28,6 @@ resource "aws_security_group" "ecs_task_sg" {
     security_groups = [aws_security_group.alb_sg.id]
   }
 
-  # Allow inbound SSH access from ALB
-  ingress {
-    description     = "ssh access"
-    from_port       = 22
-    to_port         = 22
-    protocol        = "tcp"
-    security_groups = [aws_security_group.alb_sg.id]
-  }
 
   # Allow all outbound traffic
   egress {
@@ -49,7 +41,7 @@ resource "aws_security_group" "ecs_task_sg" {
 
 # Security group for Application Load Balancer
 resource "aws_security_group" "alb_sg" {
-  name        = "e-commerce-alb-sg"
+  name        = "ecs-alb-sg"
   description = "enable http/https access on port 80 and 443 respectively"
   vpc_id      = module.networking.vpc_id
 
@@ -81,7 +73,7 @@ resource "aws_security_group" "alb_sg" {
   }
 
   tags = {
-    Name = "e-commerce-alb-sg"
+    Name = "ecs-alb-sg"
   }
 
 }

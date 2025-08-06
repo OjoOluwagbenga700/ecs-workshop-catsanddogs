@@ -6,12 +6,8 @@ resource "aws_codestarconnections_connection" "github_connection" {
 }
 
 # CodePipelines for each service
-resource "aws_codepipeline" "e_commerce_pipelines" {
-  for_each = {
-    cats = "cats"
-    dogs = "dogs"
-    web  = "web"
-  }
+resource "aws_codepipeline" "ecs_pipelines" {
+  for_each = local.services
 
   name     = "pipeline-${each.key}"
   role_arn = aws_iam_role.codepipeline_role.arn
@@ -54,7 +50,7 @@ resource "aws_codepipeline" "e_commerce_pipelines" {
       output_artifacts = ["build_output"]
 
       configuration = {
-        ProjectName = aws_codebuild_project.e_commerce_build.name
+        ProjectName = aws_codebuild_project.ecs_build.name
       }
     }
   }
@@ -71,8 +67,8 @@ resource "aws_codepipeline" "e_commerce_pipelines" {
       input_artifacts = ["build_output"]
 
       configuration = {
-        ApplicationName                = aws_codedeploy_app.e_commerce_apps[each.key].name
-        DeploymentGroupName            = aws_codedeploy_deployment_group.e_commerce_deployment_groups[each.key].deployment_group_name
+        ApplicationName                = aws_codedeploy_app.ecs_apps[each.key].name
+        DeploymentGroupName            = aws_codedeploy_deployment_group.ecs_deployment_groups[each.key].deployment_group_name
         TaskDefinitionTemplateArtifact = "build_output"
         TaskDefinitionTemplatePath     = "taskdef.json"
         AppSpecTemplateArtifact        = "build_output"

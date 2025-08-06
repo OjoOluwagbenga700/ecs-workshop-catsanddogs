@@ -1,5 +1,4 @@
 
-
 # Output the ALB DNS name
 output "alb_dns_name" {
   value = aws_lb.alb.dns_name
@@ -22,6 +21,6 @@ output "ecs_service_names" {
 # Output CodePipeline names
 output "codepipeline_names" {
   value = {
-    for k, v in aws_codepipeline.e_commerce_pipelines : k => v.name
+    for k, v in aws_codepipeline.ecs_pipelines : k => v.name
   }
 }

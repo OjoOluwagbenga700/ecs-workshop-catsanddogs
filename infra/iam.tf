@@ -46,7 +46,7 @@ resource "aws_iam_role" "codebuild_role" {
 
 # IAM policy for CodeBuild
 resource "aws_iam_policy" "codebuild_policy" {
-  name        = "e-commerce-codebuild-policy"
+  name        = "ecs-codebuild-policy"
   description = "Policy for CodeBuild to access required resources"
 
   policy = jsonencode({
@@ -172,7 +172,7 @@ resource "aws_iam_policy" "codepipeline_policy" {
       {
         Action   = ["codebuild:BatchGetBuilds", "codebuild:StartBuild"]
         Effect   = "Allow"
-        Resource = aws_codebuild_project.e_commerce_build.arn
+        Resource = aws_codebuild_project.ecs_build.arn
       },
       {
         Action = [
@@ -185,8 +185,8 @@ resource "aws_iam_policy" "codepipeline_policy" {
         ]
         Effect = "Allow"
         Resource = [
-          "arn:aws:codedeploy:${var.aws_region}:${data.aws_caller_identity.current.account_id}:application:e-commerce-app-*",
-          "arn:aws:codedeploy:${var.aws_region}:${data.aws_caller_identity.current.account_id}:deploymentgroup:e-commerce-app-*/e-commerce-deployment-group-*",
+          "arn:aws:codedeploy:${var.aws_region}:${data.aws_caller_identity.current.account_id}:application:ecs-app-*",
+          "arn:aws:codedeploy:${var.aws_region}:${data.aws_caller_identity.current.account_id}:deploymentgroup:ecs-app-*/ecs-deployment-group-*",
           "arn:aws:codedeploy:${var.aws_region}:${data.aws_caller_identity.current.account_id}:deploymentconfig:CodeDeployDefault.ECSAllAtOnce"
         ]
       },
